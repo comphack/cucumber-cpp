@@ -88,20 +88,47 @@ endif()
 #
 
 if(NOT CUKE_DISABLE_GTEST)
-    set(GMOCK_ROOT "${CMAKE_CURRENT_BINARY_DIR}/gmock")
-    find_package(GMock REQUIRED)
+    if("" STREQUAL "${GMOCK_DIR}")
+        set(GMOCK_ROOT "${CMAKE_CURRENT_BINARY_DIR}/gmock")
+        find_package(GMock REQUIRED)
 
-    if(GMOCK_FOUND)
-        set(CUKE_GTEST_LIBRARIES
-            ${GTEST_BOTH_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT}
+        if(GMOCK_FOUND)
+            set(CUKE_GTEST_LIBRARIES
+                ${GTEST_BOTH_LIBRARIES}
+                ${CMAKE_THREAD_LIBS_INIT}
+            )
+            set(CUKE_GMOCK_LIBRARIES
+                ${GTEST_BOTH_LIBRARIES}
+                ${GMOCK_BOTH_LIBRARIES}
+                ${CMAKE_THREAD_LIBS_INIT}
+            )
+        endif()
+    else()
+        add_library(gtest IMPORTED STATIC GLOBAL)
+        add_library(gmock IMPORTED STATIC GLOBAL)
+        add_library(gmock_main IMPORTED STATIC GLOBAL)
+
+        set(GMOCK_PREFIX "${GMOCK_DIR}/lib/${CMAKE_STATIC_LIBRARY_SUFFIX_C}")
+        set(GMOCK_SUFFIX "${CMAKE_STATIC_LIBRARY_PREFIX_C}")
+
+        set_target_properties(gtest PROPERTIES
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gtest.${GMOCK_SUFFIX}"
+            IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+            INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
         )
-        set(CUKE_GMOCK_LIBRARIES
-            ${GTEST_BOTH_LIBRARIES}
-            ${GMOCK_BOTH_LIBRARIES}
-            ${CMAKE_THREAD_LIBS_INIT}
+
+        set_target_properties(gmock PROPERTIES
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock.${GMOCK_SUFFIX}"
+            IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+            INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
         )
-    endif()
+
+        set_target_properties(gmock_main PROPERTIES
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock_main.${GMOCK_SUFFIX}"
+            IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
+            INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
+        )
+    endif("" STREQUAL "${GMOCK_DIR}")
 endif()
 
 #
