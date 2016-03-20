@@ -45,6 +45,8 @@ if(NOT CUKE_DISABLE_BOOST_TEST)
     set(CUKE_TEST_BOOST_LIBS unit_test_framework)
 endif()
 
+find_package(Threads REQUIRED)
+
 if(CUKE_USE_STATIC_BOOST)
     set(CUKE_STATIC_BOOST_LIBS ${CUKE_CORE_BOOST_LIBS})
     # "An external test runner utility is required to link with dynamic library" (Boost User's Guide)
@@ -52,7 +54,6 @@ if(CUKE_USE_STATIC_BOOST)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_TEST_DYN_LINK")
 
     if(NOT MSVC)
-        find_package(Threads)
         set(CUKE_EXTRA_LIBRARIES ${CUKE_EXTRA_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
     endif()
 else()
