@@ -215,6 +215,14 @@ if(CUKE_ENABLE_EXAMPLES)
 endif()
 
 install(FILES
+    include/cucumber-cpp/autodetect.hpp
+    include/cucumber-cpp/generic.hpp
+    include/cucumber-cpp/defs.hpp
+
+    DESTINATION include/cucumber-cpp
+)
+
+install(FILES
     include/json_spirit/json_spirit_utils.h
     include/json_spirit/json_spirit_value.h
     include/json_spirit/json_spirit_writer.h
@@ -224,8 +232,6 @@ install(FILES
     include/json_spirit/json_spirit.h
     include/json_spirit/json_spirit_writer_template.h
     include/json_spirit/json_spirit_error_position.h
-    include/cucumber-cpp/autodetect.hpp
-    include/cucumber-cpp/generic.hpp
-    include/cucumber-cpp/defs.hpp
-    DESTINATION include
+
+    DESTINATION include/json_spirit
 )
