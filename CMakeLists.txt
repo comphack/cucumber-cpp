@@ -108,26 +108,60 @@ if(NOT CUKE_DISABLE_GTEST)
         add_library(gmock IMPORTED STATIC GLOBAL)
         add_library(gmock_main IMPORTED STATIC GLOBAL)
 
-        set(GMOCK_PREFIX "${GMOCK_DIR}/lib/${CMAKE_STATIC_LIBRARY_SUFFIX_C}")
-        set(GMOCK_SUFFIX "${CMAKE_STATIC_LIBRARY_PREFIX_C}")
+        set(GMOCK_FOUND True)
+        set(GTEST_INCLUDE_DIRS "${GMOCK_DIR}/include")
+        set(GMOCK_PREFIX "${GMOCK_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}")
+        set(GMOCK_SUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
         set_target_properties(gtest PROPERTIES
-            IMPORTED_LOCATION "${GMOCK_PREFIX}gtest.${GMOCK_SUFFIX}"
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gtest${GMOCK_SUFFIX}"
             IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
             INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
         )
 
         set_target_properties(gmock PROPERTIES
-            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock.${GMOCK_SUFFIX}"
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock${GMOCK_SUFFIX}"
             IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
             INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
         )
 
         set_target_properties(gmock_main PROPERTIES
-            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock_main.${GMOCK_SUFFIX}"
+            IMPORTED_LOCATION "${GMOCK_PREFIX}gmock_main${GMOCK_SUFFIX}"
             IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}"
             INTERFACE_INCLUDE_DIRECTORIES "${GMOCK_DIR}/include"
         )
+
+        function(GTEST_ADD_TESTS executable extra_args)
+        if(NOT ARGN)
+            message(FATAL_ERROR "Missing ARGN: Read the documentation for GTEST_ADD_TESTS")
+        endif()
+        if(ARGN STREQUAL "AUTO")
+            # obtain sources used for building that executable
+            get_property(ARGN TARGET ${executable} PROPERTY SOURCES)
+        endif()
+        set(gtest_case_name_regex ".*\\( *([A-Za-z_0-9]+) *, *([A-Za-z_0-9]+) *\\).*")
+        set(gtest_test_type_regex "(TYPED_TEST|TEST_?[FP]?)")
+        foreach(source ${ARGN})
+            file(READ "${source}" contents)
+            string(REGEX MATCHALL "${gtest_test_type_regex} *\\(([A-Za-z_0-9 ,]+)\\)" found_tests ${contents})
+            foreach(hit ${found_tests})
+              string(REGEX MATCH "${gtest_test_type_regex}" test_type ${hit})
+
+              # Parameterized tests have a different signature for the filter
+              if("x${test_type}" STREQUAL "xTEST_P")
+                string(REGEX REPLACE ${gtest_case_name_regex}  "*/\\1.\\2/*" test_name ${hit})
+              elseif("x${test_type}" STREQUAL "xTEST_F" OR "x${test_type}" STREQUAL "xTEST")
+                string(REGEX REPLACE ${gtest_case_name_regex} "\\1.\\2" test_name ${hit})
+              elseif("x${test_type}" STREQUAL "xTYPED_TEST")
+                string(REGEX REPLACE ${gtest_case_name_regex} "\\1/*.\\2" test_name ${hit})
+              else()
+                message(WARNING "Could not parse GTest ${hit} for adding to CTest.")
+                continue()
+              endif()
+              add_test(NAME ${test_name} COMMAND ${executable} --gtest_filter=${test_name} ${extra_args})
+            endforeach()
+        endforeach()
+    endfunction()
     endif("" STREQUAL "${GMOCK_DIR}")
 endif()
 

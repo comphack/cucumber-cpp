@@ -44,6 +44,10 @@ add_library(cucumber-cpp STATIC ${CUKE_SOURCES} main.cpp)
 if(GMOCK_FOUND) 
     add_dependencies(cucumber-cpp gmock) 
     add_dependencies(cucumber-cpp-nomain gmock) 
+    target_link_libraries(cucumber-cpp gmock gmock_main gtest
+        ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(cucumber-cpp-nomain gmock gtest
+        ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 install(TARGETS cucumber-cpp-nomain DESTINATION lib)
