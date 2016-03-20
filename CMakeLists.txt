@@ -213,3 +213,19 @@ endif()
 if(CUKE_ENABLE_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+install(FILES
+    include/json_spirit/json_spirit_utils.h
+    include/json_spirit/json_spirit_value.h
+    include/json_spirit/json_spirit_writer.h
+    include/json_spirit/json_spirit_stream_reader.h
+    include/json_spirit/json_spirit_reader.h
+    include/json_spirit/json_spirit_reader_template.h
+    include/json_spirit/json_spirit.h
+    include/json_spirit/json_spirit_writer_template.h
+    include/json_spirit/json_spirit_error_position.h
+    include/cucumber-cpp/autodetect.hpp
+    include/cucumber-cpp/generic.hpp
+    include/cucumber-cpp/defs.hpp
+    DESTINATION include
+)

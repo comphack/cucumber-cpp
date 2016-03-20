@@ -45,3 +45,6 @@ if(GMOCK_FOUND)
     add_dependencies(cucumber-cpp gmock) 
     add_dependencies(cucumber-cpp-nomain gmock) 
 endif()
+
+install(TARGETS cucumber-cpp-nomain DESTINATION lib)
+install(TARGETS cucumber-cpp DESTINATION lib)
