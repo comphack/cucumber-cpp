@@ -214,12 +214,8 @@ if(CUKE_ENABLE_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-install(FILES
-    include/cucumber-cpp/autodetect.hpp
-    include/cucumber-cpp/generic.hpp
-    include/cucumber-cpp/defs.hpp
-
-    DESTINATION include/cucumber-cpp
+install(DIRECTORY include/cucumber-cpp
+    DESTINATION include
 )
 
 install(FILES
